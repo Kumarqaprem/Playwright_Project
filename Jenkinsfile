@@ -30,14 +30,7 @@ pipeline {
 
     post {
         success {
-            publishHTML(target: [
-                allowMissing: false,
-                alwaysLinkToLastBuild: true,
-                keepAll: true,
-                reportDir: 'allure-report',
-                reportFiles: 'index.html',
-                reportName: 'Allure Report'
-            ])
+            archiveArtifacts artifacts: 'allure-report/**/*', allowEmptyArchive: true
             emailext(
                 subject: "Build Success - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: """
@@ -52,8 +45,9 @@ pipeline {
                         </table>
                         <br>
                         <h3>View Allure Report:</h3>
-                        <p><a href="${env.BUILD_URL}Allure_20Report/">
-                        Click Here to View Full Allure Report</a></p>
+                        <p>Click below link to view full Allure Report in Jenkins:</p>
+                        <p><a href="${env.BUILD_URL}artifact/allure-report/index.html">
+                        👉 Open Allure Report</a></p>
                     </body>
                     </html>
                 """,
@@ -63,14 +57,7 @@ pipeline {
         }
 
         failure {
-            publishHTML(target: [
-                allowMissing: true,
-                alwaysLinkToLastBuild: true,
-                keepAll: true,
-                reportDir: 'allure-report',
-                reportFiles: 'index.html',
-                reportName: 'Allure Report'
-            ])
+            archiveArtifacts artifacts: 'allure-report/**/*', allowEmptyArchive: true
             emailext(
                 subject: "Build Failed - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: """
@@ -85,8 +72,8 @@ pipeline {
                         </table>
                         <br>
                         <h3>View Allure Report:</h3>
-                        <p><a href="${env.BUILD_URL}Allure_20Report/">
-                        Click Here to View Full Allure Report</a></p>
+                        <p><a href="${env.BUILD_URL}artifact/allure-report/index.html">
+                        👉 Open Allure Report</a></p>
                     </body>
                     </html>
                 """,
