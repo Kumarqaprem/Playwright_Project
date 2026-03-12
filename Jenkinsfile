@@ -24,13 +24,20 @@ pipeline {
         stage('Generate Allure Report') {
             steps {
                 sh '/usr/local/bin/allure generate allure-results --clean -o allure-report'
-                sh 'cd allure-report && zip -r ../allure-report.zip . && cd ..'
             }
         }
     }
 
     post {
         success {
+            publishHTML(target: [
+                allowMissing: false,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'allure-report',
+                reportFiles: 'index.html',
+                reportName: 'Allure Report'
+            ])
             emailext(
                 subject: "Build Success - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: """
@@ -44,22 +51,26 @@ pipeline {
                             <tr><td><b>Build URL</b></td><td><a href="${env.BUILD_URL}">${env.BUILD_URL}</a></td></tr>
                         </table>
                         <br>
-                        <p>📎 Allure report is attached as <b>allure-report.zip</b></p>
-                        <p>Steps to view the report:<br>
-                        1. Download and unzip <b>allure-report.zip</b><br>
-                        2. Open Terminal and run:<br>
-                        <code>allure open /path/to/unzipped/allure-report</code>
-                        </p>
+                        <h3>View Allure Report:</h3>
+                        <p><a href="${env.BUILD_URL}Allure_20Report/">
+                        Click Here to View Full Allure Report</a></p>
                     </body>
                     </html>
                 """,
                 mimeType: 'text/html',
-                to: "qakumarlead@gmail.com",
-                attachmentsPattern: 'allure-report.zip'
+                to: "qakumarlead@gmail.com"
             )
         }
 
         failure {
+            publishHTML(target: [
+                allowMissing: true,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'allure-report',
+                reportFiles: 'index.html',
+                reportName: 'Allure Report'
+            ])
             emailext(
                 subject: "Build Failed - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: """
@@ -73,19 +84,15 @@ pipeline {
                             <tr><td><b>Build URL</b></td><td><a href="${env.BUILD_URL}">${env.BUILD_URL}</a></td></tr>
                         </table>
                         <br>
-                        <p>📎 Allure report is attached as <b>allure-report.zip</b></p>
-                        <p>Steps to view the report:<br>
-                        1. Download and unzip <b>allure-report.zip</b><br>
-                        2. Open Terminal and run:<br>
-                        <code>allure open /path/to/unzipped/allure-report</code>
-                        </p>
+                        <h3>View Allure Report:</h3>
+                        <p><a href="${env.BUILD_URL}Allure_20Report/">
+                        Click Here to View Full Allure Report</a></p>
                     </body>
                     </html>
                 """,
                 mimeType: 'text/html',
-                to: "qakumarlead@gmail.com",
-                attachmentsPattern: 'allure-report.zip'
+                to: "qakumarlead@gmail.com"
             )
         }
     }
-}   
+}
