@@ -23,7 +23,7 @@ pipeline {
 
         stage('Generate Allure Report') {
             steps {
-                sh 'allure generate allure-results --clean -o allure-report'
+                sh '/usr/local/bin/allure generate allure-results --clean -o allure-report'
             }
         }
     }
@@ -49,7 +49,7 @@ pipeline {
                 """,
                 mimeType: 'text/html',
                 to: "qakumarlead@gmail.com",
-                attachmentsPattern: 'allure-report/**/*'
+                attachmentsPattern: 'allure-report/index.html'
             )
         }
 
@@ -73,7 +73,7 @@ pipeline {
                 """,
                 mimeType: 'text/html',
                 to: "qakumarlead@gmail.com",
-                attachmentsPattern: 'allure-report/**/*'
+                attachmentsPattern: 'allure-report/index.html'
             )
         }
     }
