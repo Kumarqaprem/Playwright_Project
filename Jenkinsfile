@@ -8,14 +8,22 @@ pipeline {
                 sh 'python3 -m pip install -r requirements.txt'
             }
         }
+
         stage('Install Playwright Browsers') {
             steps {
                 sh 'python3 -m playwright install'
             }
         }
+
         stage('Run Automation Tests') {
             steps {
-                sh 'python3 -m pytest -s --html=report.html --self-contained-html'
+                sh 'python3 -m pytest -s --alluredir=allure-results'
+            }
+        }
+
+        stage('Generate Allure Report') {
+            steps {
+                sh 'allure generate allure-results --clean -o allure-report'
             }
         }
     }
@@ -25,28 +33,47 @@ pipeline {
             emailext(
                 subject: "Build Success - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: """
-                    Build Status: SUCCESS
-                    Job: ${env.JOB_NAME}
-                    Build Number: ${env.BUILD_NUMBER}
-                    Build URL: ${env.BUILD_URL}
-                    
-                    Automation execution completed successfully!
+                    <html>
+                    <body>
+                        <h2 style="color:green;">Build Successful!</h2>
+                        <table>
+                            <tr><td><b>Job:</b></td><td>${env.JOB_NAME}</td></tr>
+                            <tr><td><b>Build Number:</b></td><td>#${env.BUILD_NUMBER}</td></tr>
+                            <tr><td><b>Status:</b></td><td>SUCCESS</td></tr>
+                            <tr><td><b>Build URL:</b></td><td><a href="${env.BUILD_URL}">${env.BUILD_URL}</a></td></tr>
+                        </table>
+                        <br>
+                        <p>Please find the Allure Test Report attached.</p>
+                    </body>
+                    </html>
                 """,
-                to: "qakumarlead@gmail.com"
+                mimeType: 'text/html',
+                to: "qakumarlead@gmail.com",
+                attachmentsPattern: 'allure-report/**/*'
             )
         }
+
         failure {
             emailext(
                 subject: "Build Failed - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: """
-                    Build Status: FAILED
-                    Job: ${env.JOB_NAME}
-                    Build Number: ${env.BUILD_NUMBER}
-                    Build URL: ${env.BUILD_URL}
-                    
-                    Automation execution failed. Please check Jenkins logs.
+                    <html>
+                    <body>
+                        <h2 style="color:red;">Build Failed!</h2>
+                        <table>
+                            <tr><td><b>Job:</b></td><td>${env.JOB_NAME}</td></tr>
+                            <tr><td><b>Build Number:</b></td><td>#${env.BUILD_NUMBER}</td></tr>
+                            <tr><td><b>Status:</b></td><td>FAILED</td></tr>
+                            <tr><td><b>Build URL:</b></td><td><a href="${env.BUILD_URL}">${env.BUILD_URL}</a></td></tr>
+                        </table>
+                        <br>
+                        <p>Please find the Allure Test Report attached.</p>
+                    </body>
+                    </html>
                 """,
-                to: "qakumarlead@gmail.com"
+                mimeType: 'text/html',
+                to: "qakumarlead@gmail.com",
+                attachmentsPattern: 'allure-report/**/*'
             )
         }
     }
